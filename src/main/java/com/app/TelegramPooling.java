@@ -56,11 +56,8 @@ public class TelegramPooling extends TelegramLongPollingBot {
 				  messageTxt=jenkinsCommand.getResponse();
 				  
 				  if(messageTxt.trim().equals("")){
-					  Random rand = new Random(System.currentTimeMillis());
-					  long next = rand.nextLong();					  
-					  messageTxt="Proses is running (Please check status "+jobName+")"+next;
-					  File file = new File(Long.toString(next));
-					  FileUtils.writeStringToFile(file, jobName, Charset.forName("utf-8"),true);
+					  messageTxt="Proses is running (Please check status "+jobName+")";
+					
 				  };
 				  
 				  
