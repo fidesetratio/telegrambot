@@ -47,6 +47,26 @@ public class JenkinsCommand {
 	}
 	
 	
+
+	public void status(){
+		StringBuffer buffer = new StringBuffer();
+		buffer.append(url);
+		buffer.append("job/");
+		buffer.append(jobName);
+		buffer.append("/lastBuild");
+		buffer.append("/consoleText");
+		String url = buffer.toString();
+		
+		Client client = Client.create();
+		client.addFilter(new com.sun.jersey.api.client.filter.HTTPBasicAuthFilter(this.username, this.password));
+		WebResource webResource = client.resource(url);
+		ClientResponse response = webResource.post(ClientResponse.class);
+		String jsonResponse = response.getEntity(String.class);
+		client.destroy();
+		this.response = jsonResponse;
+	}
+	
+	
 	
 	
 	public String getUrl() {

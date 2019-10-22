@@ -1,4 +1,9 @@
 package com.app;
+import java.io.File;
+import java.nio.charset.Charset;
+import java.util.Random;
+
+import org.apache.commons.io.FileUtils;
 import org.springframework.core.env.Environment;
 import org.telegram.telegrambots.api.methods.send.SendMessage;
 import org.telegram.telegrambots.api.objects.Update;
@@ -49,13 +54,31 @@ public class TelegramPooling extends TelegramLongPollingBot {
 				  JenkinsCommand jenkinsCommand = new JenkinsCommand(env.getProperty("jenkins.url"), env.getProperty("jenkins.username"), env.getProperty("jenkins.password"), jobName);
 				  jenkinsCommand.build();
 				  messageTxt=jenkinsCommand.getResponse();
+				  
 				  if(messageTxt.trim().equals("")){
-					  messageTxt="Proses is running=12344";
-				  }
+					  Random rand = new Random(System.currentTimeMillis());
+					  long next = rand.nextLong();					  
+					  messageTxt="Proses is running (Please check status "+jobName+")"+next;
+					  File file = new File(Long.toString(next));
+					  FileUtils.writeStringToFile(file, jobName, Charset.forName("utf-8"),true);
+				  };
+				  
+				  
 				  }catch(Exception e){
 					  e.printStackTrace();
 					  messageTxt = "Pastikan command line jenkins ngak ada masalah";
 				  }
+			  }
+			  
+			  if(message_text.toLowerCase().startsWith("status")){
+				  allowed = true;
+				  String commandline[] = message_text.split(" ");
+				  String  jobName = commandline[1];
+				  JenkinsCommand jenkinsCommand = new JenkinsCommand(env.getProperty("jenkins.url"), env.getProperty("jenkins.username"), env.getProperty("jenkins.password"), jobName);
+				  jenkinsCommand.status();
+				  messageTxt = jenkinsCommand.getResponse();
+				  messageTxt = getLastnCharacters(messageTxt,400);
+				  
 			  }
 			  
 			  message.setChatId(chat_id);
@@ -74,6 +97,18 @@ public class TelegramPooling extends TelegramLongPollingBot {
 		 }
 		
 	}
+	
+	public String getLastnCharacters(String inputString, 
+            int subStringLength){
+int length = inputString.length();
+if(length <= subStringLength){
+return inputString;
+}
+int startIndex = length-subStringLength;
+return inputString.substring(startIndex);
+}
+	
+	
 
 	@Override
 	public String getBotToken() {
